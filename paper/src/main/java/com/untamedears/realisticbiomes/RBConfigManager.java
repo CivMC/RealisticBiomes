@@ -11,6 +11,7 @@ import com.untamedears.realisticbiomes.growth.FungusGrower;
 import com.untamedears.realisticbiomes.growth.HorizontalBlockSpreadGrower;
 import com.untamedears.realisticbiomes.growth.IArtificialGrower;
 import com.untamedears.realisticbiomes.growth.KelpGrower;
+import com.untamedears.realisticbiomes.growth.NMSFeatureGrower;
 import com.untamedears.realisticbiomes.growth.SchematicGrower;
 import com.untamedears.realisticbiomes.growth.SeaPickleGrower;
 import com.untamedears.realisticbiomes.growth.StemGrower;
@@ -306,6 +307,8 @@ public class RBConfigManager extends ConfigParser {
 				return new StemGrower(material, fruitConfig);
 			case "tree":
 				return new TreeGrower(material);
+			case "nmstree":
+				return new NMSFeatureGrower(material);
 			case "horizontalspread":
 				int maxAmount = section.getInt("max_amount");
 				int horRange = section.getInt("max_range");
