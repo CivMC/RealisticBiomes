@@ -2,7 +2,6 @@ package com.untamedears.realisticbiomes.growth;
 
 import java.util.List;
 import java.util.OptionalInt;
-import java.util.Random;
 
 import com.google.common.collect.ImmutableList;
 
@@ -36,11 +35,7 @@ import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlac
 //manage NMS Configured features for RB
 public class RBFeatures {
 
-	//mega in this case means 2x2
-	protected Holder<? extends ConfiguredFeature<?, ?>> treeMatcher(Random random, boolean bees, boolean megatree, boolean shortTree) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 	private static TreeConfiguration.TreeConfigurationBuilder createStraightBlobTree(
 			net.minecraft.world.level.block.Block log, net.minecraft.world.level.block.Block leaves, 
 			int baseHeight, int radius) {
@@ -93,7 +88,7 @@ public class RBFeatures {
 			FeatureUtils.register(
 					"short_mega_jungle_tree", Feature.TREE, (
 						new TreeConfiguration.TreeConfigurationBuilder(BlockStateProvider.simple(Blocks.JUNGLE_LOG), 
-						new MegaJungleTrunkPlacer(10, 2, 19), BlockStateProvider.simple(Blocks.JUNGLE_LEAVES), 
+						new MegaJungleTrunkPlacer(10, 0, 0), BlockStateProvider.simple(Blocks.JUNGLE_LEAVES), 
 						new MegaJungleFoliagePlacer(ConstantInt.of(2), ConstantInt.of(0), 2), 
 						new TwoLayersFeatureSize(1, 1, 2))).
 					decorators(ImmutableList.of(TrunkVineDecorator.INSTANCE, LeaveVineDecorator.INSTANCE)).build());
@@ -103,11 +98,11 @@ public class RBFeatures {
 			FeatureUtils.register(
 					"short_mega_spruce", Feature.TREE, (
 						new TreeConfiguration.TreeConfigurationBuilder(BlockStateProvider.simple(Blocks.SPRUCE_LOG), 
-						new GiantTrunkPlacer(13, 2, 14), BlockStateProvider.simple(Blocks.SPRUCE_LEAVES), 
+						new GiantTrunkPlacer(13, 0, 0), BlockStateProvider.simple(Blocks.SPRUCE_LEAVES), 
 						new MegaPineFoliagePlacer(ConstantInt.of(0), ConstantInt.of(0), UniformInt.of(13, 17)), 
 						new TwoLayersFeatureSize(1, 1, 2)))
 					.decorators(ImmutableList.of(new AlterGroundDecorator(BlockStateProvider.simple(Blocks.PODZOL)))).build());
-	//short 2x2 ofc because that's the only way it grows in vanilla dark oak tree
+	//short 2x2 ofc because that's the only way it grows (normally) dark oak tree
 	public static final Holder<ConfiguredFeature<TreeConfiguration, ?>> SHORT_DARK_OAK = 
 			FeatureUtils.register(
 					"short_dark_oak", Feature.TREE, (

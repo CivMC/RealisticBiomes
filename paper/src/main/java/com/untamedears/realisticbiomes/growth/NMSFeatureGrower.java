@@ -1,63 +1,25 @@
 package com.untamedears.realisticbiomes.growth;
 
-import java.lang.reflect.Field;
 import java.util.Iterator;
-import java.util.List;
-import java.util.OptionalInt;
 import java.util.Random;
 
 import org.bukkit.Material;
-import org.bukkit.TreeType;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.type.Sapling;
-import org.bukkit.craftbukkit.v1_18_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_18_R2.block.CraftBlock;
-import org.bukkit.craftbukkit.v1_18_R2.block.data.type.CraftSapling;
 
-import com.google.common.collect.ImmutableList;
-import com.untamedears.realisticbiomes.PlantManager;
-import com.untamedears.realisticbiomes.RealisticBiomes;
 import com.untamedears.realisticbiomes.model.Plant;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
+import net.minecraft.data.worldgen.features.TreeFeatures;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.valueproviders.ConstantInt;
-import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.grower.AbstractMegaTreeGrower;
-import net.minecraft.world.level.block.grower.AbstractTreeGrower;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.HugeFungusConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
-import net.minecraft.world.level.levelgen.feature.featuresize.ThreeLayersFeatureSize;
-import net.minecraft.world.level.levelgen.feature.featuresize.TwoLayersFeatureSize;
-import net.minecraft.world.level.levelgen.feature.foliageplacers.AcaciaFoliagePlacer;
-import net.minecraft.world.level.levelgen.feature.foliageplacers.BlobFoliagePlacer;
-import net.minecraft.world.level.levelgen.feature.foliageplacers.DarkOakFoliagePlacer;
-import net.minecraft.world.level.levelgen.feature.foliageplacers.MegaJungleFoliagePlacer;
-import net.minecraft.world.level.levelgen.feature.foliageplacers.MegaPineFoliagePlacer;
-import net.minecraft.world.level.levelgen.feature.foliageplacers.SpruceFoliagePlacer;
-import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
-import net.minecraft.world.level.levelgen.feature.treedecorators.AlterGroundDecorator;
-import net.minecraft.world.level.levelgen.feature.treedecorators.BeehiveDecorator;
-import net.minecraft.world.level.levelgen.feature.treedecorators.LeaveVineDecorator;
-import net.minecraft.world.level.levelgen.feature.treedecorators.TrunkVineDecorator;
-import net.minecraft.world.level.levelgen.feature.trunkplacers.DarkOakTrunkPlacer;
-import net.minecraft.world.level.levelgen.feature.trunkplacers.ForkingTrunkPlacer;
-import net.minecraft.world.level.levelgen.feature.trunkplacers.GiantTrunkPlacer;
-import net.minecraft.world.level.levelgen.feature.trunkplacers.MegaJungleTrunkPlacer;
-import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlacer;
-import net.minecraft.data.worldgen.features.FeatureUtils;
-import net.minecraft.data.worldgen.features.TreeFeatures;
 
 public class NMSFeatureGrower extends AgeableGrower {
 
@@ -91,15 +53,11 @@ public class NMSFeatureGrower extends AgeableGrower {
 		} 
 		
 		
-		//Sapling sapling =
-		//(Sapling) block.getBlockData();
-		//sapling.setStage(3);
-		//plant.getLocation().getWorld().setBlockData(plant.getLocation(), sapling);
 		CraftBlock cBlock = (CraftBlock) block;
 		BlockPos pos = cBlock.getPosition();
 		ServerLevel spWorld = cBlock.getCraftWorld().getHandle();
 		BlockState spBlock = cBlock.getNMS();
-		//TODO basically copy AbstractTressGrower.growTree
+
 		this.growTreeFeature(spWorld, spWorld.getChunkSource().getGenerator(), pos, spBlock, new Random());
 		return true;
 	}
@@ -112,9 +70,10 @@ public class NMSFeatureGrower extends AgeableGrower {
 			Random random) {
 		isMega = false;
 		if(placeMegaTree(world, chunkGenerator, pos, state, random)) {return true;};
-		if(isMega) return false;
+		if(isMega) return false; // fail tree growth  here if it's a mega tree and it hasn't returned true above
 		ConfiguredFeature<?, ?> feature;
 		ConfiguredFeature<?, ?> featureSmall;
+		//feature holds the default Minecraft tree and featureSmall holds a version with randomHeight set to 0 so that it will grow at minimum height
 		switch(state.getBukkitMaterial()) {
 		case JUNGLE_SAPLING:
 			feature = TreeFeatures.JUNGLE_TREE_NO_VINE.value();
@@ -136,17 +95,17 @@ public class NMSFeatureGrower extends AgeableGrower {
 			feature = TreeFeatures.ACACIA.value();
 			featureSmall = RBFeatures.SHORT_ACACIA.value();
 			break;
-		case DARK_OAK_SAPLING:
-		default:
+		case DARK_OAK_SAPLING: //completly unecessary only left this in for the sake of completion tbh
+		default: 
 			return false;
 		}
 		 world.setBlock(pos, Blocks.AIR.defaultBlockState(), 4);
-         if (feature.place(world, chunkGenerator, random, pos)) {
+         if (feature.place(world, chunkGenerator, random, pos)) { //attempt to place the normal tree feature
              return true;
-         } else if(featureSmall.place(world, chunkGenerator, random, pos)) {
+         } else if(featureSmall.place(world, chunkGenerator, random, pos)) { //attempt to place the small/short version if the normal fails
         	 return true;
          } else {
-             world.setBlock(pos, state, 4);
+             world.setBlock(pos, state, 4); //replace the sappling if both fail
              return false;
          }
 	}
@@ -154,6 +113,7 @@ public class NMSFeatureGrower extends AgeableGrower {
 	private boolean placeMegaTree(ServerLevel world, ChunkGenerator chunkGenerator, BlockPos pos, BlockState state, Random random) {
 		ConfiguredFeature<?, ?> feature;
 		ConfiguredFeature<?, ?> featureSmall;
+		//feature holds the default minecraft tree and featuresmall holds a version with randomHeight set to 0 so that it will grow at minimum height
 		switch(state.getBukkitMaterial()) {	
 		case JUNGLE_SAPLING:
 			feature = TreeFeatures.MEGA_JUNGLE_TREE.value();
@@ -173,18 +133,18 @@ public class NMSFeatureGrower extends AgeableGrower {
 		for (int i = 0; i >= -1; --i) {
             for (int j = 0; j >= -1; --j) {
                 if (AbstractMegaTreeGrower.isTwoByTwoSapling(state, world, pos, i, j)) {
-                	isMega = true;
+                	isMega = true; //set ismega so that function above can know when a tree is 2x2 and has failed growth (admitedly this is probs not the best solution)
                 	BlockState air = Blocks.AIR.defaultBlockState();
-                	 world.setBlock(pos.offset(i, 0, j), air, 4);
+                	 world.setBlock(pos.offset(i, 0, j), air, 4); //remove saplings
                      world.setBlock(pos.offset(i + 1, 0, j), air, 4);
                      world.setBlock(pos.offset(i, 0, j + 1), air, 4);
                      world.setBlock(pos.offset(i + 1, 0, j + 1), air, 4);
                      if (feature.place(world, chunkGenerator, random, pos.offset(i, 0, j))) {
                          return true;
-                     } else if(featureSmall.place(world, chunkGenerator, random, pos.offset(i, 0, j))){
+                     } else if(featureSmall.place(world, chunkGenerator, random, pos.offset(i, 0, j))){ //try placing short tree if normal tree fails
                     	 return true;
                      } else {
-	                     world.setBlock(pos.offset(i, 0, j), state, 4);
+	                     world.setBlock(pos.offset(i, 0, j), state, 4);  //replace saplings if both fail
 	                     world.setBlock(pos.offset(i + 1, 0, j), state, 4);
 	                     world.setBlock(pos.offset(i, 0, j + 1), state, 4);
 	                     world.setBlock(pos.offset(i + 1, 0, j + 1), state, 4);
@@ -196,7 +156,7 @@ public class NMSFeatureGrower extends AgeableGrower {
 		return false;
 	}
 
-	private boolean hasFlowers(LevelAccessor world, BlockPos pos) {
+	private boolean hasFlowers(LevelAccessor world, BlockPos pos) { //straight up pulled from nms code 
         Iterator iterator = BlockPos.MutableBlockPos.betweenClosed(pos.below().north(2).west(2), pos.above().south(2).east(2)).iterator();
 
         BlockPos blockposition1;
@@ -219,13 +179,6 @@ public class NMSFeatureGrower extends AgeableGrower {
 	public boolean deleteOnFullGrowth() {
 		return true;
 	}
-
-	
-	//this class will be the one growing the trees for us
-	//private class InternalNMSTreeGrower extends AbstractTreeGrower {
-	//turns out there's not rly any need for this class
-	//most of what was here has been moved to RBFeatures
-
 	
 
 }
