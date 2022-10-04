@@ -95,6 +95,10 @@ public class NMSFeatureGrower extends AgeableGrower {
 			feature = TreeFeatures.ACACIA.value();
 			featureSmall = RBFeatures.SHORT_ACACIA.value();
 			break;
+		case FLOWERING_AZALEA:
+			feature = TreeFeatures.AZALEA_TREE.value();
+			featureSmall = RBFeatures.SHORT_AZALEA_TREE.value();
+			break;
 		case DARK_OAK_SAPLING: //completly unecessary only left this in for the sake of completion tbh
 		default: 
 			return false;
