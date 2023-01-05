@@ -48,7 +48,7 @@ public class NMSFeatureGrower extends AgeableGrower {
 		}
 		Block block = plant.getLocation().getBlock();
 		// Re-Read the block data to make sure it is up to date
-		if (!(block.getBlockData() instanceof Sapling)) {
+		if (!(block.getBlockData() instanceof Sapling||block.getBlockData().getMaterial() == Material.FLOWERING_AZALEA)) {
 			return true;
 		} 
 		
